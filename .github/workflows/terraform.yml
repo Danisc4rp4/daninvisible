@@ -26,19 +26,31 @@ jobs:
       uses: hashicorp/setup-terraform@v1
 
     # Replace the providers and Variables files to replace the GOOGLE_PROJECT_ID set as Github Actions Variable.
-    - name: Replace Providers
+    #
+    - name: Replace GOOGLE_PROJECT_ID Providers
       run: sed -i "s/GOOGLE_PROJECT_ID/${GOOGLE_PROJECT_ID}/g" providers.tf
       env:
         GOOGLE_PROJECT_ID: ${{ vars.GOOGLE_PROJECT_ID }}
-
-    - name: Replace Variables
+     
+    - name: Replace GOOGLE_PROJECT_ID Variables
       run: sed -i "s/GOOGLE_PROJECT_ID/${GOOGLE_PROJECT_ID}/g" terraform.tfvars
       env:
         GOOGLE_PROJECT_ID: ${{ vars.GOOGLE_PROJECT_ID }}
-    
+      
+    - name: Replace GITHUB_TOKEN Variables
+      run: sed -i "s/GITHUB_TOKEN/${GITHUB_TOKEN}/g" terraform.tfvars
+      env:
+        GITHUB_TOKEN: ${{ secrets.CREATE_REPO }}
+
+    - name: Replace FLUX_REPO Variables
+      run: sed -i "s/FLUX_REPO/${FLUX_REPO}/g" terraform.tfvars
+      env:
+        FLUX_REPO: ${{ vars.FLUX_REPO }}
+  
+
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init
+      run: terraform init -reconfigure -upgrade
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
