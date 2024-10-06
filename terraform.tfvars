@@ -1,4 +1,4 @@
-project_id = "cicd-437812"
-region = "us-east1"
-tf_state_bucket = "cicd-437812-tfstate"
-infra_bucket = "cicd-437812-infra"
+project_id = "GOOGLE_PROJECT_ID"
+region     = "us-east1"
+tf_state_bucket = "GOOGLE_PROJECT_ID-tfstate"
+infra_bucket = "GOOGLE_PROJECT_ID-infra"

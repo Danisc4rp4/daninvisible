@@ -23,8 +23,19 @@ jobs:
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1        
+      uses: hashicorp/setup-terraform@v1
 
+    # Replace the providers and Variables files to replace the GOOGLE_PROJECT_ID set as Github Actions Variable.
+    - name: Replace Providers
+      run: sed -i "s/GOOGLE_PROJECT_ID/${GOOGLE_PROJECT_ID}/g" providers.tf
+      env:
+        GOOGLE_PROJECT_ID: ${{ vars.GOOGLE_PROJECT_ID }}
+
+    - name: Replace Variables
+      run: sed -i "s/GOOGLE_PROJECT_ID/${GOOGLE_PROJECT_ID}/g" terraform.tfvars
+      env:
+        GOOGLE_PROJECT_ID: ${{ vars.GOOGLE_PROJECT_ID }}
+    
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init
