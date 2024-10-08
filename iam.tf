@@ -1,5 +1,7 @@
+# Give the permission needed for the Githubactions SA to be able to apply infra changes.
+
 data "google_service_account" "githubactions" {
-  account_id   = var.githubactions_sa
+  account_id = var.githubactions_sa
 }
 
 resource "google_project_iam_custom_role" "githubactions-custom" {
@@ -13,6 +15,8 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "compute.instanceGroupManagers.get",
     "compute.instanceGroupManagers.update",
     "container.clusters.get",
+    "container.clusters.create",
+    "container.clusters.delete",
     "container.configMaps.create",
     "container.configMaps.delete",
     "container.configMaps.get",
@@ -43,6 +47,7 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "container.namespaces.list",
     "container.namespaces.create",
     "container.namespaces.update",
+    "container.operations.get",
     "container.persistentVolumeClaims.create",
     "container.persistentVolumeClaims.delete",
     "container.persistentVolumeClaims.get",
@@ -52,6 +57,9 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "container.pods.get",
     "container.pods.list",
     "container.pods.update",
+    "container.resourceQuotas.update",
+    "container.clusterRoles.update",
+    "container.clusterRoleBindings.update",
     "container.roleBindings.create",
     "container.roleBindings.delete",
     "container.roleBindings.get",
@@ -94,9 +102,6 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "storage.objects.delete",
     "storage.objects.get",
     "storage.objects.list",
-    "container.resourceQuotas.update",
-    "container.clusterRoles.update",
-    "container.clusterRoleBindings.update"
   ]
 }
 
@@ -105,5 +110,5 @@ resource "google_project_iam_member" "githubactions" {
   role    = google_project_iam_custom_role.githubactions-custom.name
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
 
-  depends_on = [ google_project_iam_custom_role.githubactions-custom ]
+  depends_on = [google_project_iam_custom_role.githubactions-custom]
 }

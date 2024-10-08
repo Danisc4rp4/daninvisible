@@ -16,16 +16,16 @@
 
 # [START gke_quickstart_autopilot_cluster]
 resource "google_compute_network" "default" {
-  name = "example-network"
+  name = "cicd-network"
 
   auto_create_subnetworks  = false
   enable_ula_internal_ipv6 = true
 }
 
 resource "google_compute_subnetwork" "default" {
-  name = "example-subnetwork"
+  name = "cicd-subnetwork"
 
-  ip_cidr_range = "10.0.0.0/16"
+  ip_cidr_range = var.primary_ip_cidr
   region        = var.region
 
   stack_type       = "IPV4_IPV6"
@@ -34,18 +34,18 @@ resource "google_compute_subnetwork" "default" {
   network = google_compute_network.default.id
   secondary_ip_range {
     range_name    = "services-range"
-    ip_cidr_range = "192.168.0.0/24"
+    ip_cidr_range = var.services_ip_cidr
   }
 
   secondary_ip_range {
     range_name    = "pod-ranges"
-    ip_cidr_range = "192.168.1.0/24"
+    ip_cidr_range = var.pods_ip_cidr
   }
 }
 
 resource "google_container_cluster" "default" {
-  name                = var.gke_cluster_name
-  location            = var.region
+  name     = var.gke_cluster_name
+  location = var.region
 
   enable_autopilot         = true
   enable_l4_ilb_subsetting = true
@@ -62,5 +62,12 @@ resource "google_container_cluster" "default" {
   # Set `deletion_protection` to `true` will ensure that one cannot
   # accidentally delete this instance by use of Terraform.
   deletion_protection = false
+
+  depends_on = [ google_project_iam_custom_role.githubactions-custom ]
 }
 # [END gke_quickstart_autopilot_cluster]
+
+data "google_client_config" "default" {
+  depends_on = [ google_container_cluster.default ]
+}
+

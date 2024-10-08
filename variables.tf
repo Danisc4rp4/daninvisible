@@ -43,8 +43,32 @@ variable "gke_cluster_name" {
   type        = string
 }
 
+variable "primary_ip_cidr" {
+  description = "Primary CIDR for nodes.  /24 will provide 256 node addresses."
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "services_ip_cidr" {
+  description = "Primary CIDR for nodes.  /24 will provide 256 node addresses."
+  type        = string
+  default     = "192.168.0.0/24"
+}
+
+variable "pods_ip_cidr" {
+  description = "Primary CIDR for nodes.  /24 will provide 256 node addresses."
+  type        = string
+  default     = "192.168.1.0/24"
+}
+
 variable "githubactions_sa" {
   description = "Githubaction SA."
   type        = string
+}
+
+variable "deploy_flux" {
+  description = "Wether to deploy flux or not"
+  type        = bool
+  default     = false
 }
 
