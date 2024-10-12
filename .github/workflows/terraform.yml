@@ -103,7 +103,6 @@ jobs:
       uses: hashicorp/setup-terraform@v1
 
     # Replace the providers and Variables files to replace the GOOGLE_PROJECT_ID set as Github Actions Variable.
-    #
     - name: Replace GOOGLE_PROJECT_ID Providers
       run: sed -i "s/GOOGLE_PROJECT_ID/${GOOGLE_PROJECT_ID}/g" providers.tf
       env:

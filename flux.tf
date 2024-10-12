@@ -28,6 +28,10 @@ resource "github_repository" "this" {
   description = var.github_repository
   visibility  = "public"
   auto_init   = true # This is extremely important as flux_bootstrap_git will not work without a repository that has been initialised
+
+  depends_on = [
+    data.google_client_config.default
+  ]
 }
 
 # ==========================================
@@ -38,6 +42,8 @@ resource "tls_private_key" "flux" {
   count       = var.deploy_flux ? 1 : 0
   algorithm   = "ECDSA"
   ecdsa_curve = "P256"
+
+  depends_on = [ github_repository.this ]
 }
 
 resource "github_repository_deploy_key" "this" {
@@ -47,7 +53,9 @@ resource "github_repository_deploy_key" "this" {
   key        = tls_private_key.flux[0].public_key_openssh
   read_only  = "false"
 
-  depends_on = [ github_repository.this ]
+  depends_on = [
+    tls_private_key.flux,
+  ]
 }
 
 # ==========================================
@@ -59,5 +67,7 @@ resource "flux_bootstrap_git" "this" {
   embedded_manifests = true
   path               = "clusters/cicd"
 
-  depends_on = [github_repository_deploy_key.this, google_container_cluster.default]
+  depends_on = [
+    github_repository_deploy_key.this,
+  ]
 }

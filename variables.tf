@@ -26,7 +26,6 @@ variable "github_repository" {
   default     = ""
 }
 
-
 variable "project_id" {
   description = "GCP project ID"
   type        = string
@@ -41,6 +40,12 @@ variable "region" {
 variable "gke_cluster_name" {
   description = "Name of the GKE cluster."
   type        = string
+}
+
+variable "zone" {
+  description = "Zone to deploy GCP resources"
+  type        = string
+  default     = "us-central1-c"
 }
 
 variable "primary_ip_cidr" {
