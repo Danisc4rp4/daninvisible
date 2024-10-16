@@ -10,7 +10,7 @@ terraform {
   }
   required_providers {
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
       version = "6.6.0"
     }
     flux = {
@@ -18,11 +18,11 @@ terraform {
       version = "1.4.0"
     }
     github = {
-      source = "integrations/github"
+      source  = "integrations/github"
       version = "6.3.1"
     }
     tls = {
-      source = "hashicorp/tls"
+      source  = "hashicorp/tls"
       version = "4.0.6"
     }
   }

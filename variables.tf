@@ -72,8 +72,13 @@ variable "githubactions_sa" {
 }
 
 variable "deploy_flux" {
-  description = "Wether to deploy flux or not"
+  description = "Whether to deploy flux or not"
   type        = bool
   default     = false
 }
 
+variable "create_flux_repo" {
+  description = "Whether to create the flux repo or not"
+  type        = bool
+  default     = false
+}

@@ -120,31 +120,29 @@ resource "google_project_iam_member" "githubactions" {
   role    = google_project_iam_custom_role.githubactions-custom.name
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
 
-  depends_on = [google_project_iam_custom_role.githubactions-custom]
+  depends_on = [ google_project_iam_custom_role.githubactions-custom ]
 }
 
 resource "google_project_iam_member" "githubactions_containeradmin" {
   project = var.project_id
   role    = "roles/container.admin"
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
-
-  depends_on = [google_project_iam_custom_role.githubactions-custom]
 }
 
 resource "google_project_iam_member" "githubactions_artifact_registry_writer" {
   project = var.project_id
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
-
-  depends_on = [google_project_iam_custom_role.githubactions-custom]
 }
 
 resource "google_project_iam_member" "githubactions_service_account_token_create" {
   project = var.project_id
   role    = "roles/iam.serviceAccountTokenCreator"
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
-
-  depends_on = [google_project_iam_custom_role.githubactions-custom]
 }
 
-
+resource "google_project_iam_member" "githubactions_service_account_artifactregistry_write" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${data.google_service_account.githubactions.email}"
+}

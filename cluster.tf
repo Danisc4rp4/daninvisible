@@ -27,7 +27,7 @@ resource "google_compute_subnetwork" "default" {
     ip_cidr_range = var.pods_ip_cidr
   }
 
-  depends_on = [google_project_iam_member.githubactions]
+  depends_on = [google_compute_network.default]
 }
 
 resource "google_container_cluster" "default" {
@@ -47,43 +47,17 @@ resource "google_container_cluster" "default" {
     cluster_secondary_range_name  = google_compute_subnetwork.default.secondary_ip_range[1].range_name
   }
 
-  node_config {
-    machine_type = "e2-medium"
-  }
-  # Set `deletion_protection` to `true` will ensure that one cannot
-  # accidentally delete this instance by use of Terraform.
-  deletion_protection = false
+  deletion_protection = true
 
   private_cluster_config {
     enable_private_endpoint = false
-    enable_private_nodes    = false # To be enabled after building and replacing images
+    enable_private_nodes    = false             # To be enabled after building and replacing images
     # master_ipv4_cidr_block  = "10.100.100.0/28" # if enable_private_endpoint = true
   }
 
-  # cluster_autoscaling {
-  #   enabled             = true
-  #   autoscaling_profile = "OPTIMIZE_UTILIZATION"
-
-  #   resource_limits {
-  #     resource_type = "cpu"
-  #     maximum       = 12
-  #   }
-
-  #   resource_limits {
-  #     resource_type = "memory"
-  #     maximum       = 100
-  #   }
-  # }
-
   depends_on = [
-    google_project_iam_custom_role.githubactions-custom,
-    google_compute_network.default,
     google_compute_subnetwork.default,
   ]
-}
-
-data "google_client_config" "default" {
-  depends_on = [google_container_cluster.default]
 }
 
 resource "google_service_account" "default" {
@@ -91,10 +65,18 @@ resource "google_service_account" "default" {
   display_name = "Service Account for GKE Nodepools"
 }
 
+resource "google_project_iam_member" "gke-nodepools-artifactregistry-read" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.default.email}"
+
+  depends_on = [google_service_account.default]
+}
+
 resource "google_container_node_pool" "system" {
   name       = "system"
   cluster    = google_container_cluster.default.id
-  node_count = 2
+  node_count = 1
 
   node_locations = [
     var.zone,
