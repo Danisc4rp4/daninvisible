@@ -1,10 +1,16 @@
+data "google_client_config" "default" {
+  depends_on = [ google_container_cluster.default ]
+}
+
 provider "flux" {
   kubernetes = {
     host                   = "https://${google_container_cluster.default.endpoint}"
     token                  = data.google_client_config.default.access_token
     cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth[0].cluster_ca_certificate)
+    config_context = "gke_${var.project_id}_${var.zone}_${var.gke_cluster_name}"
+    load_config_file       = false
   }
-  git = {
+  git = {  
     url = "ssh://git@github.com/${var.github_org}/${var.github_repository}.git"
     ssh = {
       username    = "git"
@@ -41,13 +47,16 @@ resource "tls_private_key" "flux" {
 }
 
 resource "github_repository_deploy_key" "this" {
-  count       = var.deploy_flux ? 1 : 0
+  count      = var.deploy_flux ? 1 : 0
   title      = "Flux"
   repository = github_repository.this[0].name
   key        = tls_private_key.flux[0].public_key_openssh
   read_only  = "false"
 
-  depends_on = [ github_repository.this ]
+  depends_on = [
+    github_repository.this,
+    tls_private_key.flux,
+  ]
 }
 
 # ==========================================
@@ -55,9 +64,7 @@ resource "github_repository_deploy_key" "this" {
 # ==========================================
 
 resource "flux_bootstrap_git" "this" {
-  count       = var.deploy_flux ? 1 : 0
+  count              = var.deploy_flux ? 1 : 0
   embedded_manifests = true
   path               = "clusters/cicd"
-
-  depends_on = [github_repository_deploy_key.this, google_container_cluster.default]
 }

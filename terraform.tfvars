@@ -1,6 +1,9 @@
 project_id        = "GOOGLE_PROJECT_ID"
+region            = "europe-west2"
+
 gke_cluster_name  = "main"
-region            = "asia-east1"
+zone = "europe-west2-a"
+
 primary_ip_cidr   = "PRIMARY_IP_CIDR"
 services_ip_cidr  = "SERVICES_IP_CIDR"
 pods_ip_cidr      = "PODS_IP_CIDR"
