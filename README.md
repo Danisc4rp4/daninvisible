@@ -5,22 +5,13 @@
 Create a GCP account with a project called "cicd", and an environment in Githubactions with the same name. Set the GOOGLE_PROJECT_ID as a variable in the Github Actions environment cicd. Create 2 Buckets in your GCP account, "$GOOGLE_PROJECT_ID-tfstate" and "$GOOGLE_PROJECT_ID-infra".
 
 Create a Service Account called "githubactions" with roles:
-Compute Security Admin
-Create Service Accounts
-Delete Service Accounts
-Githubactions Custom
-Instance Group Manager Service Agent
-Kubernetes Engine Admin
-Kubernetes Engine Cluster Admin
-Role Administrator
 Service Account User
 Storage Admin
 Storage Object Admin
+Role Administrator
+Compute Network Admin
 
-Create a new "cicd" role to attach to the gothubactions SA, with the following permissions:
-compute.instanceGroupManagers.get
-container.customResourceDefinitions.create
-container.customResourceDefinitions.update
+Create a new "githubactions" role to attach to the githubactions SA, with the following permissions:
 resourcemanager.projects.setIamPolicy
 
 Create a new key, select JSON type. Copy the downloaded file, and paste it into Gitlab Settings Actions Secrets.

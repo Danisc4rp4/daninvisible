@@ -1,25 +1,10 @@
-/**
-* Copyright 2024 Google LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
-# [START gke_quickstart_autopilot_cluster]
 resource "google_compute_network" "default" {
   name = "cicd-network"
 
   auto_create_subnetworks  = false
   enable_ula_internal_ipv6 = true
+
+  depends_on = [google_project_iam_member.githubactions]
 }
 
 resource "google_compute_subnetwork" "default" {
@@ -41,33 +26,75 @@ resource "google_compute_subnetwork" "default" {
     range_name    = "pod-ranges"
     ip_cidr_range = var.pods_ip_cidr
   }
+
+  depends_on = [google_compute_network.default]
 }
 
 resource "google_container_cluster" "default" {
   name     = var.gke_cluster_name
-  location = var.region
+  location = var.zone
 
-  enable_autopilot         = true
   enable_l4_ilb_subsetting = true
+  remove_default_node_pool = true
+
+  initial_node_count = 1
 
   network    = google_compute_network.default.id
   subnetwork = google_compute_subnetwork.default.id
 
   ip_allocation_policy {
-    stack_type                    = "IPV4_IPV6"
     services_secondary_range_name = google_compute_subnetwork.default.secondary_ip_range[0].range_name
     cluster_secondary_range_name  = google_compute_subnetwork.default.secondary_ip_range[1].range_name
   }
 
-  # Set `deletion_protection` to `true` will ensure that one cannot
-  # accidentally delete this instance by use of Terraform.
-  deletion_protection = false
+  deletion_protection = true
 
-  depends_on = [ google_project_iam_custom_role.githubactions-custom ]
+  private_cluster_config {
+    enable_private_endpoint = false
+    enable_private_nodes    = false # To be enabled after building and replacing images
+    # master_ipv4_cidr_block  = "10.100.100.0/28" # if enable_private_endpoint = true
+  }
+
+  depends_on = [
+    google_compute_subnetwork.default,
+  ]
 }
-# [END gke_quickstart_autopilot_cluster]
 
-data "google_client_config" "default" {
-  depends_on = [ google_container_cluster.default ]
+resource "google_service_account" "default" {
+  account_id   = "gke-nodepool"
+  display_name = "Service Account for GKE Nodepools"
 }
 
+resource "google_project_iam_member" "gke-nodepools-artifactregistry-read" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.default.email}"
+
+  depends_on = [google_service_account.default]
+}
+
+resource "google_container_node_pool" "system" {
+  name       = "system"
+  cluster    = google_container_cluster.default.id
+  node_count = 1
+
+  node_locations = [
+    var.zone,
+  ]
+
+  node_config {
+    preemptible  = true
+    machine_type = "e2-standard-4"
+
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
+  }
+
+  autoscaling {
+    min_node_count = 1
+    max_node_count = 3
+  }
+}

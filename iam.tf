@@ -14,8 +14,13 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "artifactregistry.repositories.uploadArtifacts",
     "compute.instanceGroupManagers.get",
     "compute.instanceGroupManagers.update",
+    "compute.networks.create",
+    "compute.networks.get",
+    "compute.subnetworks.get",
+    "compute.subnetworks.create",
     "container.clusters.get",
     "container.clusters.create",
+    "container.clusters.update",
     "container.clusters.delete",
     "container.configMaps.create",
     "container.configMaps.delete",
@@ -57,6 +62,7 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "container.pods.get",
     "container.pods.list",
     "container.pods.update",
+    "container.resourceQuotas.create",
     "container.resourceQuotas.update",
     "container.clusterRoles.update",
     "container.clusterRoleBindings.update",
@@ -66,6 +72,7 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "container.roleBindings.update",
     "container.roles.create",
     "container.roles.delete",
+    "container.roles.escalate",
     "container.roles.get",
     "container.roles.update",
     "container.secrets.create",
@@ -97,6 +104,9 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "dns.resourceRecordSets.get",
     "dns.resourceRecordSets.list",
     "dns.resourceRecordSets.update",
+    "iam.serviceAccounts.create",
+    "iam.serviceAccounts.update",
+    "iam.serviceAccounts.delete",
     "storage.buckets.get",
     "storage.objects.create",
     "storage.objects.delete",
@@ -111,4 +121,28 @@ resource "google_project_iam_member" "githubactions" {
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
 
   depends_on = [google_project_iam_custom_role.githubactions-custom]
+}
+
+resource "google_project_iam_member" "githubactions_containeradmin" {
+  project = var.project_id
+  role    = "roles/container.admin"
+  member  = "serviceAccount:${data.google_service_account.githubactions.email}"
+}
+
+resource "google_project_iam_member" "githubactions_artifact_registry_writer" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${data.google_service_account.githubactions.email}"
+}
+
+resource "google_project_iam_member" "githubactions_service_account_token_create" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:${data.google_service_account.githubactions.email}"
+}
+
+resource "google_project_iam_member" "githubactions_service_account_artifactregistry_write" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${data.google_service_account.githubactions.email}"
 }
