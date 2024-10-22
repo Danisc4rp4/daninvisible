@@ -120,7 +120,7 @@ resource "google_project_iam_member" "githubactions" {
   role    = google_project_iam_custom_role.githubactions-custom.name
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
 
-  depends_on = [ google_project_iam_custom_role.githubactions-custom ]
+  depends_on = [google_project_iam_custom_role.githubactions-custom]
 }
 
 resource "google_project_iam_member" "githubactions_containeradmin" {

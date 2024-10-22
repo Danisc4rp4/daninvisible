@@ -51,7 +51,7 @@ resource "google_container_cluster" "default" {
 
   private_cluster_config {
     enable_private_endpoint = false
-    enable_private_nodes    = false             # To be enabled after building and replacing images
+    enable_private_nodes    = false # To be enabled after building and replacing images
     # master_ipv4_cidr_block  = "10.100.100.0/28" # if enable_private_endpoint = true
   }
 

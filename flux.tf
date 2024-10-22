@@ -1,5 +1,5 @@
 data "google_client_config" "default" {
-  depends_on = [ google_container_cluster.default ]
+  depends_on = [google_container_cluster.default]
 }
 
 provider "flux" {
@@ -7,10 +7,10 @@ provider "flux" {
     host                   = "https://${google_container_cluster.default.endpoint}"
     token                  = data.google_client_config.default.access_token
     cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth[0].cluster_ca_certificate)
-    config_context = "gke_${var.project_id}_${var.zone}_${var.gke_cluster_name}"
+    config_context         = "gke_${var.project_id}_${var.zone}_${var.gke_cluster_name}"
     load_config_file       = false
   }
-  git = {  
+  git = {
     url = "ssh://git@github.com/${var.github_org}/${var.github_repository}.git"
     ssh = {
       username    = "git"
@@ -29,8 +29,8 @@ provider "github" {
 # ==========================================
 
 data "github_repository" "this" {
-  count       = var.create_flux_repo ? 0 : 1
-  name        = var.github_repository
+  count = !var.deploy_flux || var.create_flux_repo ? 0 : 1
+  name  = var.github_repository
 }
 
 
