@@ -73,4 +73,6 @@ resource "flux_bootstrap_git" "this" {
   count              = var.deploy_flux ? 1 : 0
   embedded_manifests = true
   path               = "clusters/cicd"
+
+  depends_on = [google_container_node_pool.system]
 }

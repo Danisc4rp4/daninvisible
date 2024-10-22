@@ -97,4 +97,6 @@ resource "google_container_node_pool" "system" {
     min_node_count = 1
     max_node_count = 3
   }
+
+  depends_on = [google_container_cluster.default, google_service_account.default]
 }
