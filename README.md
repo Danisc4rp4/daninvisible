@@ -13,10 +13,11 @@ Compute Network Admin
 
 Create a new "githubactions" role to attach to the githubactions SA, with the following permissions:
 resourcemanager.projects.setIamPolicy
+iam.serviceAccounts.create
 
 Create a new key, select JSON type. Copy the downloaded file, and paste it into Gitlab Settings Actions Secrets.
 
-Create a Personal access Token on Github. Click on your user icon, then Settings, then Developer settings, Personal Access Tokens. Add the token as a secret into the env cicd of Github Actions GITHUB_TOKEN variable.
+Create a Personal access Token on Github. Click on your user icon, then Settings, then Developer settings, Personal Access Tokens. Add the token as a secret into the env cicd of Github Actions CREATE_REPO variable.
 
 Set the env vars GOOGLE_PROJECT_ID, PRIMARY_IP_CIDR, 
 
