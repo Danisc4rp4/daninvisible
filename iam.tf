@@ -18,6 +18,8 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "compute.networks.get",
     "compute.subnetworks.get",
     "compute.subnetworks.create",
+    "container.clusterRoles.update",
+    "container.clusterRoleBindings.update",
     "container.clusters.get",
     "container.clusters.create",
     "container.clusters.update",
@@ -64,8 +66,6 @@ resource "google_project_iam_custom_role" "githubactions-custom" {
     "container.pods.update",
     "container.resourceQuotas.create",
     "container.resourceQuotas.update",
-    "container.clusterRoles.update",
-    "container.clusterRoleBindings.update",
     "container.roleBindings.create",
     "container.roleBindings.delete",
     "container.roleBindings.get",
@@ -138,11 +138,5 @@ resource "google_project_iam_member" "githubactions_artifact_registry_writer" {
 resource "google_project_iam_member" "githubactions_service_account_token_create" {
   project = var.project_id
   role    = "roles/iam.serviceAccountTokenCreator"
-  member  = "serviceAccount:${data.google_service_account.githubactions.email}"
-}
-
-resource "google_project_iam_member" "githubactions_service_account_artifactregistry_write" {
-  project = var.project_id
-  role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${data.google_service_account.githubactions.email}"
 }
